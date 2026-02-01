@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import '../models/image_picker_strings.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -74,7 +76,10 @@ class ImagePickerPermissions {
   /// If the permission is permanently denied, offers to open app settings.
   ///
   /// Returns `true` if permission was granted.
-  static Future<bool> requestCameraWithDialog(BuildContext context) async {
+  static Future<bool> requestCameraWithDialog(
+    BuildContext context, {
+    ImagePickerStrings strings = const ImagePickerStrings(),
+  }) async {
     if (kIsWeb) return true;
     if (!Platform.isAndroid && !Platform.isIOS) return true;
     // Check current status
@@ -86,19 +91,17 @@ class ImagePickerPermissions {
     if (status.isPermanentlyDenied) {
       return _showSettingsDialog(
         context,
-        title: 'Camera Permission Required',
-        message:
-            'Camera permission is required to take photos. '
-            'Please enable it in your device settings.',
+        strings: strings,
+        title: strings.cameraPermissionRequiredTitle,
+        message: strings.cameraPermissionRequiredMessage,
       );
     }
     // Show explanation dialog before requesting
     final shouldRequest = await _showExplanationDialog(
       context,
-      title: 'Camera Permission',
-      message:
-          'We need camera access to let you take photos. '
-          'Would you like to grant camera permission?',
+      strings: strings,
+      title: strings.cameraPermissionTitle,
+      message: strings.cameraPermissionMessage,
     );
     if (!shouldRequest) return false;
     // Request permission
@@ -110,10 +113,9 @@ class ImagePickerPermissions {
     if (status.isPermanentlyDenied) {
       return _showSettingsDialog(
         context,
-        title: 'Camera Permission Required',
-        message:
-            'Camera permission was denied. '
-            'Please enable it in your device settings to use the camera.',
+        strings: strings,
+        title: strings.cameraPermissionRequiredTitle,
+        message: strings.cameraPermissionDeniedMessage,
       );
     }
     return false;
@@ -125,7 +127,10 @@ class ImagePickerPermissions {
   /// If the permission is permanently denied, offers to open app settings.
   ///
   /// Returns `true` if permission was granted.
-  static Future<bool> requestStorageWithDialog(BuildContext context) async {
+  static Future<bool> requestStorageWithDialog(
+    BuildContext context, {
+    ImagePickerStrings strings = const ImagePickerStrings(),
+  }) async {
     if (kIsWeb) return true;
     if (!Platform.isAndroid && !Platform.isIOS) return true;
     // Check current status
@@ -137,19 +142,17 @@ class ImagePickerPermissions {
     if (status.isPermanentlyDenied) {
       return _showSettingsDialog(
         context,
-        title: 'Photos Permission Required',
-        message:
-            'Photos permission is required to select images. '
-            'Please enable it in your device settings.',
+        strings: strings,
+        title: strings.photosPermissionRequiredTitle,
+        message: strings.photosPermissionRequiredMessage,
       );
     }
     // Show explanation dialog before requesting
     final shouldRequest = await _showExplanationDialog(
       context,
-      title: 'Photos Permission',
-      message:
-          'We need access to your photos to let you select images. '
-          'Would you like to grant photos permission?',
+      strings: strings,
+      title: strings.photosPermissionTitle,
+      message: strings.photosPermissionMessage,
     );
     if (!shouldRequest) return false;
     // Request permission
@@ -161,10 +164,9 @@ class ImagePickerPermissions {
     if (status.isPermanentlyDenied) {
       return _showSettingsDialog(
         context,
-        title: 'Photos Permission Required',
-        message:
-            'Photos permission was denied. '
-            'Please enable it in your device settings to select images.',
+        strings: strings,
+        title: strings.photosPermissionRequiredTitle,
+        message: strings.photosPermissionDeniedMessage,
       );
     }
     return false;
@@ -181,6 +183,7 @@ class ImagePickerPermissions {
 
   static Future<bool> _showExplanationDialog(
     BuildContext context, {
+    required ImagePickerStrings strings,
     required String title,
     required String message,
   }) async {
@@ -192,11 +195,11 @@ class ImagePickerPermissions {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(strings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Continue'),
+            child: Text(strings.continueLabel),
           ),
         ],
       ),
@@ -206,6 +209,7 @@ class ImagePickerPermissions {
 
   static Future<bool> _showSettingsDialog(
     BuildContext context, {
+    required ImagePickerStrings strings,
     required String title,
     required String message,
   }) async {
@@ -217,14 +221,14 @@ class ImagePickerPermissions {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(strings.cancel),
           ),
           TextButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop(true);
               await openAppSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text(strings.openSettings),
           ),
         ],
       ),

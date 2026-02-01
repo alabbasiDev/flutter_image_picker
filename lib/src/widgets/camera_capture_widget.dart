@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../models/image_picker_strings.dart';
 import '../models/picked_image.dart';
 import '../models/picker_options.dart';
 import '../utils/permissions.dart';
@@ -27,10 +28,17 @@ import '../utils/permissions.dart';
 /// ```
 class CameraCaptureWidget extends StatefulWidget {
   /// Creates a [CameraCaptureWidget].
-  const CameraCaptureWidget({super.key, this.options = const PickerOptions()});
+  const CameraCaptureWidget({
+    super.key,
+    this.options = const PickerOptions(),
+    this.strings = const ImagePickerStrings(),
+  });
 
   /// Configuration options including preferred camera device.
   final PickerOptions options;
+
+  /// Strings used for localization.
+  final ImagePickerStrings strings;
 
   @override
   State<CameraCaptureWidget> createState() => _CameraCaptureWidgetState();
@@ -79,7 +87,7 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget>
       if (_cameras.isEmpty) {
         setState(() {
           _hasError = true;
-          _errorMessage = 'No cameras available on this device';
+          _errorMessage = widget.strings.noCamerasAvailable;
         });
         return;
       }
@@ -164,9 +172,9 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to capture image: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${widget.strings.captureFailed}: $e')),
+        );
       }
     } finally {
       if (mounted) {
@@ -222,7 +230,7 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget>
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Go Back'),
+              child: Text(widget.strings.goBack),
             ),
           ],
         ),
@@ -231,13 +239,16 @@ class _CameraCaptureWidgetState extends State<CameraCaptureWidget>
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: Colors.white),
-          SizedBox(height: 16),
-          Text('Initializing camera...', style: TextStyle(color: Colors.white)),
+          const CircularProgressIndicator(color: Colors.white),
+          const SizedBox(height: 16),
+          Text(
+            widget.strings.initializingCamera,
+            style: const TextStyle(color: Colors.white),
+          ),
         ],
       ),
     );
@@ -362,6 +373,7 @@ class CameraCapture {
   static Future<PickedImage?> capture(
     BuildContext context, {
     PickerOptions options = const PickerOptions(),
+    ImagePickerStrings strings = const ImagePickerStrings(),
     bool requestPermission = true,
   }) async {
     // Check if we're on a supported platform
@@ -380,7 +392,10 @@ class CameraCapture {
     // Check/request camera permission
     if (requestPermission) {
       final hasPermission =
-          await ImagePickerPermissions.requestCameraWithDialog(context);
+          await ImagePickerPermissions.requestCameraWithDialog(
+            context,
+            strings: strings,
+          );
       if (!hasPermission) {
         return null;
       }
@@ -388,7 +403,7 @@ class CameraCapture {
     if (!context.mounted) return null;
     return Navigator.of(context).push<PickedImage>(
       MaterialPageRoute(
-        builder: (_) => CameraCaptureWidget(options: options),
+        builder: (_) => CameraCaptureWidget(options: options, strings: strings),
         fullscreenDialog: true,
       ),
     );

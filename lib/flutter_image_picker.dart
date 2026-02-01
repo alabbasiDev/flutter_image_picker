@@ -8,6 +8,7 @@ library;
 export 'src/models/picked_image.dart';
 export 'src/models/image_source.dart';
 export 'src/models/picker_options.dart';
+export 'src/models/image_picker_strings.dart';
 
 // Core
 export 'src/image_picker_platform.dart';

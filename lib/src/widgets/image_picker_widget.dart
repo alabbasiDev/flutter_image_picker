@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../image_picker.dart';
+import '../models/image_picker_strings.dart';
 import '../models/image_source.dart';
 import '../models/picked_image.dart';
 import '../models/picker_options.dart';
@@ -37,14 +38,20 @@ class ImagePickerWidget extends StatefulWidget {
     this.child,
     this.galleryIcon,
     this.cameraIcon,
+    this.strings = const ImagePickerStrings(),
+    @Deprecated('Use strings.galleryLabel instead')
     this.galleryLabel = 'Gallery',
-    this.cameraLabel = 'Camera',
+    @Deprecated('Use strings.cameraLabel instead') this.cameraLabel = 'Camera',
+    @Deprecated('Use strings.selectImageTitle instead')
     this.title = 'Select Image Source',
     this.borderRadius = 12.0,
     this.backgroundColor,
     this.iconColor,
     this.textColor,
   });
+
+  /// Strings used for localization.
+  final ImagePickerStrings strings;
 
   /// Callback when a single image is picked.
   final ValueChanged<PickedImage>? onImagePicked;
@@ -170,6 +177,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       final image = await CameraCapture.capture(
         context,
         options: widget.options.copyWith(source: ImageSource.camera),
+        strings: widget.strings,
       );
       if (image != null) {
         widget.onImagePicked?.call(image);
@@ -221,7 +229,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: Text(
-                widget.title,
+                // prioritize strings if provided
+                widget.strings.selectImageTitle,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: textColor,
@@ -234,7 +243,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                     widget.galleryIcon ??
                     Icon(Icons.photo_library_rounded, color: iconColor),
                 title: Text(
-                  widget.galleryLabel,
+                  widget.strings.galleryLabel,
                   style: TextStyle(color: textColor),
                 ),
                 onTap: () {
@@ -248,7 +257,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                     widget.cameraIcon ??
                     Icon(Icons.camera_alt_rounded, color: iconColor),
                 title: Text(
-                  widget.cameraLabel,
+                  widget.strings.cameraLabel,
                   style: TextStyle(color: textColor),
                 ),
                 onTap: () {
@@ -285,7 +294,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             ),
           const SizedBox(width: 8),
           Text(
-            widget.allowMultiple ? 'Select Images' : 'Select Image',
+            widget.allowMultiple
+                ? widget.strings.selectImagesLabel
+                : widget.strings.selectImageLabel,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w500,

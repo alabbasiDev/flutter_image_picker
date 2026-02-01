@@ -11,6 +11,7 @@ A cross-platform image picker plugin for Flutter that works on **Android, iOS, W
 - ✅ **Automatic permission handling** with user-friendly dialogs
 - ✅ Ready-to-use widget with customizable UI
 - ✅ Type-safe API with proper models
+- ✅ **Localization support** for all UI strings
 - ✅ HEIC/HEIF image support
 
 ## Platform Support
@@ -160,6 +161,37 @@ final storageGranted = await ImagePickerPermissions.requestStorageWithDialog(con
 await ImagePickerPermissions.openSettings();
 ```
 
+### Localization
+
+You can localize all strings in the UI by passing an `ImagePickerStrings` instance:
+
+```dart
+ImagePickerWidget(
+  strings: const ImagePickerStrings(
+    galleryLabel: 'Galería',
+    cameraLabel: 'Cámara',
+    selectImageTitle: 'Seleccionar Fuente',
+    selectImagesLabel: 'Seleccionar Imágenes',
+    selectImageLabel: 'Seleccionar Imagen',
+    cameraPermissionTitle: 'Permiso de Cámara',
+    cameraPermissionMessage: 'Necesitamos acceso a tu cámara para tomar fotos.',
+    cameraPermissionDeniedMessage: 'El permiso de cámara fue denegado.',
+    photosPermissionTitle: 'Permiso de Fotos',
+    photosPermissionMessage: 'Necesitamos acceso a tus fotos.',
+    photosPermissionDeniedMessage: 'El permiso de fotos fue denegado.',
+    openSettings: 'Abrir Configuración',
+    cancel: 'Cancelar',
+    continueLabel: 'Continuar',
+    goBack: 'Volver',
+    initializingCamera: 'Iniciando cámara...',
+    noCamerasAvailable: 'No hay cámaras disponibles',
+    cameraInitializationFailed: 'Falló al iniciar la cámara',
+    captureFailed: 'Falló al tomar la foto',
+  ),
+  onImagePicked: (image) { ... },
+)
+```
+
 ### Custom Widget
 
 You can also provide your own UI:
@@ -237,7 +269,7 @@ final image = await imagePicker.pickImage(
 
 | Method | Description |
 |--------|-------------|
-| `capture(context, {options, requestPermission})` | Opens camera preview and captures image |
+| `capture(context, {options, requestPermission, strings})` | Opens camera preview and captures image |
 | `isAvailable()` | Returns true if camera is available |
 | `hasPermission()` | Check if camera permission is granted |
 | `requestPermission()` | Request camera permission (no dialog) |
@@ -253,6 +285,14 @@ final image = await imagePicker.pickImage(
 | `requestCameraWithDialog(context)` | Request camera permission with user-friendly dialog |
 | `requestStorageWithDialog(context)` | Request storage permission with user-friendly dialog |
 | `openSettings()` | Open app settings for permission management |
+
+### ImagePickerStrings
+
+All strings used in the UI can be customized via the `ImagePickerStrings` class. This includes:
+- Main widget labels (gallery, camera, titles)
+- Permission dialog texts (titles, messages, denied messages)
+- Camera interface strings (initialization, errors)
+- Common action buttons (cancel, continue, settings)
 
 ## Example
 
