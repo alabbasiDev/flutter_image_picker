@@ -1,0 +1,33 @@
+name: flutter_image_picker
+description: A cross-platform image picker plugin for Flutter. Works on Android, iOS, Web, macOS, Windows, and Linux.
+version: 0.0.1
+homepage: https://github.com/alabbasidev/flutter_image_picker
+repository: https://github.com/alabbasidev/flutter_image_picker
+issue_tracker: https://github.com/alabbasidev/flutter_image_picker/issues
+
+environment:
+  sdk: ^3.10.7
+  flutter: ">=3.10.0"
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker: ^8.0.0+1
+  camera: ^0.11.1
+  permission_handler: ^11.3.1
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
