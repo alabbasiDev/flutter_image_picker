@@ -429,6 +429,25 @@ class ImagePickerWeb implements ImagePickerPlatform {
     if (multiple) {
       input.multiple = true;
     }
+    // Control capture behavior based on source:
+    // - Gallery: Do NOT set capture attribute at all. This tells the browser
+    //   to only show the file picker, not the camera option.
+    // - Camera: Set capture attribute to request camera access.
+    //
+    // Note: On mobile WebViews (InAppBrowser), the native file chooser
+    // may still show options. For complete control, the WebView's
+    // onShowFileChooser callback should check for the capture attribute.
+    if (options.source == ImageSource.camera) {
+      input.setAttribute(
+        'capture',
+        options.preferredCameraDevice == CameraDevice.front
+            ? 'user'
+            : 'environment',
+      );
+    } else {
+      // Explicitly remove capture attribute to ensure gallery-only behavior
+      input.removeAttribute('capture');
+    }
     return input;
   }
 

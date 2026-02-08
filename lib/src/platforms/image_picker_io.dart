@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 
 import '../image_picker_platform.dart';
 import '../models/image_source.dart';
@@ -32,10 +33,12 @@ class ImagePickerIO implements ImagePickerPlatform {
 
   @override
   Future<List<PickedImage>> pickMultipleImages(PickerOptions options) async {
+    print('=====>picking multiple images: ${_isMobile}');
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: true,
       withData: true,
+      withReadStream: _isMobile,
     );
     if (result == null || result.files.isEmpty) {
       return [];
@@ -63,12 +66,22 @@ class ImagePickerIO implements ImagePickerPlatform {
     return true;
   }
 
+  /// On Android/iOS, gallery picks often have [PlatformFile.bytes] and
+  /// [PlatformFile.path] null (content URIs). Requesting [withReadStream]
+  /// ensures we can read bytes via stream or [PlatformFile.xFile].
+  static bool get _isMobile =>
+      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+
   Future<PickedImage?> _pickFromGallery(PickerOptions options) async {
+    print('=====>picking from gallery: ${_isMobile}');
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: false,
-      withData: true,
+      // withData: true,
+      // withReadStream: _isMobile,
     );
+
+    print('=====>resultselected from gallery: ${result?.count}');
     if (result == null || result.files.isEmpty) {
       return null;
     }
@@ -81,8 +94,23 @@ class ImagePickerIO implements ImagePickerPlatform {
   ) async {
     Uint8List? bytes = file.bytes;
     if (bytes == null && file.path != null) {
-      final ioFile = File(file.path!);
-      bytes = await ioFile.readAsBytes();
+      try {
+        final ioFile = File(file.path!);
+        bytes = await ioFile.readAsBytes();
+      } on Exception {
+        // Path may be invalid or not a real filesystem path (e.g. content URI)
+        bytes = null;
+      }
+    }
+    if (bytes == null && file.readStream != null) {
+      bytes = await _readStreamToBytes(file.readStream!);
+    }
+    if (bytes == null) {
+      try {
+        bytes = await file.xFile.readAsBytes();
+      } on Exception {
+        bytes = null;
+      }
     }
     if (bytes == null) {
       return null;
@@ -94,6 +122,14 @@ class ImagePickerIO implements ImagePickerPlatform {
       mimeType: _getMimeType(file.extension),
       path: file.path,
     );
+  }
+
+  Future<Uint8List> _readStreamToBytes(Stream<List<int>> stream) async {
+    final chunks = <List<int>>[];
+    await for (final chunk in stream) {
+      chunks.add(chunk);
+    }
+    return Uint8List.fromList(chunks.expand((e) => e).toList());
   }
 
   Future<Uint8List> _processImage(
