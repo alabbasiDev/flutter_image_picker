@@ -34,7 +34,7 @@ class ImagePickerIO implements ImagePickerPlatform {
   @override
   Future<List<PickedImage>> pickMultipleImages(PickerOptions options) async {
     print('=====>picking multiple images: ${_isMobile}');
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: true,
       withData: true,
@@ -74,7 +74,7 @@ class ImagePickerIO implements ImagePickerPlatform {
 
   Future<PickedImage?> _pickFromGallery(PickerOptions options) async {
     print('=====>picking from gallery: ${_isMobile}');
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: false,
       // withData: true,
